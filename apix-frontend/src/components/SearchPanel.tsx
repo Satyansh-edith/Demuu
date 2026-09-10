@@ -1,5 +1,8 @@
-// src/components/SearchPanel.tsx
-import { RouteInfo } from '../api/client';
+"use client"
+
+import { RouteInfo } from "@/lib/api"
+import { Button } from "@/components/ui/button"
+import { Search, ArrowRight, Loader2 } from "lucide-react"
 
 const CITY_LABELS: Record<string, string> = {
   DEL: 'Delhi (DEL)',
@@ -37,137 +40,91 @@ export default function SearchPanel({
   const airports = Object.keys(CITY_LABELS);
 
   return (
-    <div className="glass-card p-6">
-      <div className="flex items-center gap-2 mb-5">
-        <span className="text-brand-400 text-lg">🔍</span>
-        <h2 className="text-white font-semibold text-base">Search Route & Airline</h2>
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-5 pb-3 border-b border-border">
+        <Search className="w-4 h-4 text-primary" />
+        <h2 className="text-foreground font-semibold text-sm">Select Route & Airline</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div className="space-y-4">
         {/* Origin */}
         <div className="space-y-1.5">
-          <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Origin</label>
-          <div className="relative">
-            <select
-              id="origin-select"
-              value={origin}
-              onChange={(e) => onOriginChange(e.target.value)}
-              className="select-field pr-10"
-            >
-              <option value="">Select origin</option>
-              {airports.map((code) => (
-                <option key={code} value={code}>{CITY_LABELS[code]}</option>
-              ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▼</span>
-          </div>
-        </div>
-
-        {/* Arrow */}
-        <div className="hidden md:flex items-end justify-center pb-3">
-          <div className="flex items-center gap-2 text-brand-400 font-bold text-xl">→</div>
-        </div>
-
-        {/* Destination — shown on mobile as second field without arrow */}
-        <div className="space-y-1.5 md:hidden">
-          <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Destination</label>
-          <div className="relative">
-            <select
-              id="destination-select-mobile"
-              value={destination}
-              onChange={(e) => onDestinationChange(e.target.value)}
-              className="select-field pr-10"
-            >
-              <option value="">Select destination</option>
-              {airports
-                .filter((c) => c !== origin)
-                .map((code) => (
-                  <option key={code} value={code}>{CITY_LABELS[code]}</option>
-                ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▼</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2 on desktop: destination + airline */}
-      <div className="hidden md:grid md:grid-cols-2 gap-4 mb-5">
-        <div className="space-y-1.5">
-          <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Destination</label>
-          <div className="relative">
-            <select
-              id="destination-select"
-              value={destination}
-              onChange={(e) => onDestinationChange(e.target.value)}
-              className="select-field pr-10"
-            >
-              <option value="">Select destination</option>
-              {airports
-                .filter((c) => c !== origin)
-                .map((code) => (
-                  <option key={code} value={code}>{CITY_LABELS[code]}</option>
-                ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▼</span>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Airline</label>
-          <div className="relative">
-            <select
-              id="airline-select"
-              value={airline}
-              onChange={(e) => onAirlineChange(e.target.value)}
-              className="select-field pr-10"
-            >
-              <option value="">Select airline</option>
-              {airlines.map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▼</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile airline */}
-      <div className="md:hidden space-y-1.5 mb-5">
-        <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Airline</label>
-        <div className="relative">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Origin City
+          </label>
           <select
-            id="airline-select-mobile"
-            value={airline}
-            onChange={(e) => onAirlineChange(e.target.value)}
-            className="select-field pr-10"
+            value={origin}
+            onChange={(e) => onOriginChange(e.target.value)}
+            className="w-full px-3 py-2 rounded-md bg-muted/50 border border-border text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
           >
-            <option value="">Select airline</option>
-            {airlines.map((a) => (
-              <option key={a} value={a}>{a}</option>
+            <option value="">Select departure airport</option>
+            {airports.map((code) => (
+              <option key={code} value={code} className="bg-card text-foreground">
+                {CITY_LABELS[code]}
+              </option>
             ))}
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▼</span>
         </div>
-      </div>
 
-      <button
-        id="analyze-fare-btn"
-        onClick={onAnalyze}
-        disabled={loading || !origin || !destination || !airline}
-        className="btn-primary w-full"
-      >
-        {loading ? (
-          <>
-            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            Analyzing…
-          </>
-        ) : (
-          <>
-            <span>📊</span>
-            Analyze Fare
-          </>
-        )}
-      </button>
+        {/* Destination */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Destination City
+          </label>
+          <select
+            value={destination}
+            onChange={(e) => onDestinationChange(e.target.value)}
+            className="w-full px-3 py-2 rounded-md bg-muted/50 border border-border text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+          >
+            <option value="">Select arrival airport</option>
+            {airports
+              .filter((c) => c !== origin)
+              .map((code) => (
+                <option key={code} value={code} className="bg-card text-foreground">
+                  {CITY_LABELS[code]}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        {/* Airline */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Carrier / Airline
+          </label>
+          <select
+            value={airline}
+            onChange={(e) => onAirlineChange(e.target.value)}
+            className="w-full px-3 py-2 rounded-md bg-muted/50 border border-border text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+          >
+            <option value="">Select airline carrier</option>
+            {airlines.map((a) => (
+              <option key={a} value={a} className="bg-card text-foreground">
+                {a}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <Button
+          onClick={onAnalyze}
+          disabled={loading || !origin || !destination || !airline}
+          className="w-full mt-2 gap-2"
+          size="lg"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Analyzing Index...</span>
+            </>
+          ) : (
+            <>
+              <span>Analyze Fare Index</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,46 +1,44 @@
-// src/components/LoadingSteps.tsx
+"use client"
+
+import { Loader2, CheckCircle2, Circle } from "lucide-react"
+
 interface LoadingStepsProps {
   step: number; // 1=fetching, 2=querying, 3=processing
 }
 
 const STEPS = [
-  { id: 1, icon: '📡', label: 'Fetching fare data…' },
-  { id: 2, icon: '🗄️', label: 'Querying database…' },
-  { id: 3, icon: '⚙️', label: 'Processing analytics…' },
+  { id: 1, label: 'Fetching live fare data from scraper stream' },
+  { id: 2, label: 'Querying MoSPI MongoDB dataset index' },
+  { id: 3, label: 'Calculating volatility & statistical averages' },
 ];
 
 export default function LoadingSteps({ step }: LoadingStepsProps) {
   return (
-    <div className="glass-card p-8 flex flex-col items-center gap-6 animate-fade-in">
-      <div className="w-12 h-12 rounded-full border-2 border-brand-500/30 border-t-brand-400 animate-spin" />
-      <div className="flex flex-col gap-3 w-full max-w-xs">
+    <div className="rounded-xl border border-border bg-card p-8 flex flex-col items-center gap-6 shadow-sm">
+      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="flex flex-col gap-3 w-full max-w-sm">
         {STEPS.map((s) => {
           const isActive = s.id === step;
           const isDone = s.id < step;
           return (
             <div
               key={s.id}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${
                 isActive
-                  ? 'bg-brand-500/15 border border-brand-500/30'
+                  ? 'border-primary/50 bg-primary/5 text-foreground'
                   : isDone
-                  ? 'bg-surface-600/30 border border-surface-400/20'
-                  : 'opacity-30 border border-transparent'
+                  ? 'border-border bg-muted/40 text-muted-foreground'
+                  : 'border-transparent opacity-40 text-muted-foreground'
               }`}
             >
-              <span className="text-base">{isDone ? '✅' : s.icon}</span>
-              <span
-                className={`text-sm font-medium ${
-                  isActive ? 'text-brand-300' : isDone ? 'text-slate-400' : 'text-slate-600'
-                }`}
-              >
-                {s.label}
-              </span>
-              {isActive && (
-                <span className="ml-auto">
-                  <span className="inline-block w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-                </span>
+              {isDone ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : isActive ? (
+                <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" />
+              ) : (
+                <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
               )}
+              <span className="text-xs font-medium">{s.label}</span>
             </div>
           );
         })}

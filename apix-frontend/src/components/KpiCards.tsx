@@ -1,5 +1,8 @@
-// src/components/KpiCards.tsx
-import { FareAnalyzeResult } from '../api/client';
+"use client"
+
+import { FareAnalyzeResult } from "@/lib/api"
+import { Badge } from "@/components/ui/badge"
+import { TrendingUp, TrendingDown } from "lucide-react"
 
 interface KpiCardsProps {
   data: FareAnalyzeResult;
@@ -9,16 +12,23 @@ function formatINR(v: number) {
   return `₹${v.toLocaleString('en-IN')}`;
 }
 
-function ChangeChip({ value }: { value: number }) {
-  const positive = value >= 0;
+function ChangeBadge({ value, label }: { value: number; label: string }) {
+  const isUp = value >= 0;
   return (
-    <span
-      className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-        positive ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/15 text-emerald-400'
-      }`}
-    >
-      {positive ? '↑' : '↓'} {Math.abs(value)}%
-    </span>
+    <div className="flex items-center gap-1.5 text-xs">
+      <Badge
+        variant="outline"
+        className={`gap-1 font-semibold ${
+          isUp
+            ? "border-destructive/40 text-red-400 bg-destructive/10"
+            : "border-primary/40 text-emerald-400 bg-primary/10"
+        }`}
+      >
+        {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        {isUp ? "+" : ""}{value}%
+      </Badge>
+      <span className="text-muted-foreground text-xs">{label}</span>
+    </div>
   );
 }
 
@@ -26,55 +36,53 @@ export default function KpiCards({ data }: KpiCardsProps) {
   const { analytics, currentFare, route, airline } = data;
 
   return (
-    <div className="space-y-4 animate-slide-up">
-      {/* Route tag */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/15 border border-brand-500/30">
-          <span className="text-brand-300 font-bold text-sm">{route}</span>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-600/60 border border-surface-400/30">
-          <span className="text-slate-300 text-sm">{airline}</span>
-        </div>
+    <div className="space-y-4">
+      {/* Route header badges */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Badge variant="secondary" className="font-semibold text-xs py-1 px-3">
+          Route: {route}
+        </Badge>
+        <Badge variant="outline" className="text-xs py-1 px-3">
+          Airline: {airline}
+        </Badge>
       </div>
 
-      {/* Current fare — hero card */}
-      <div className="glass-card p-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent pointer-events-none" />
-        <div className="relative">
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-2">Current Fare</p>
-          <p className="text-5xl font-extrabold text-white tracking-tight mb-3">
+      {/* Hero Current Fare */}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+          Current Average Fare
+        </p>
+        <div className="flex items-baseline justify-between flex-wrap gap-2">
+          <span className="text-4xl font-extrabold text-foreground tracking-tight">
             {formatINR(currentFare)}
-          </p>
+          </span>
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <ChangeChip value={analytics.changeVs7Days} />
-              <span className="text-slate-500 text-xs">vs 7-day avg</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ChangeChip value={analytics.changeVs30Days} />
-              <span className="text-slate-500 text-xs">vs 30-day avg</span>
-            </div>
+            <ChangeBadge value={analytics.changeVs7Days} label="vs 7D Avg" />
+            <ChangeBadge value={analytics.changeVs30Days} label="vs 30D Avg" />
           </div>
         </div>
       </div>
 
-      {/* Grid of KPIs */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="kpi-card">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">7-Day Avg</p>
-          <p className="text-2xl font-bold text-white">{formatINR(analytics.sevenDayAverage)}</p>
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">7-Day Avg</p>
+          <p className="text-xl font-bold text-foreground">{formatINR(analytics.sevenDayAverage)}</p>
         </div>
-        <div className="kpi-card">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">30-Day Avg</p>
-          <p className="text-2xl font-bold text-white">{formatINR(analytics.thirtyDayAverage)}</p>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">30-Day Avg</p>
+          <p className="text-xl font-bold text-foreground">{formatINR(analytics.thirtyDayAverage)}</p>
         </div>
-        <div className="kpi-card">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Minimum</p>
-          <p className="text-2xl font-bold text-emerald-400">{formatINR(analytics.minimumFare)}</p>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Minimum Fare</p>
+          <p className="text-xl font-bold text-emerald-400">{formatINR(analytics.minimumFare)}</p>
         </div>
-        <div className="kpi-card">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Maximum</p>
-          <p className="text-2xl font-bold text-red-400">{formatINR(analytics.maximumFare)}</p>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Maximum Fare</p>
+          <p className="text-xl font-bold text-red-400">{formatINR(analytics.maximumFare)}</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
-// src/components/FareChart.tsx
+"use client"
+
 import {
   ResponsiveContainer,
   AreaChart,
@@ -10,7 +11,7 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
-import { DailyFareData } from '../api/client';
+import { DailyFareData } from '@/lib/api';
 
 interface FareChartProps {
   data: DailyFareData[];
@@ -29,12 +30,12 @@ function formatINR(value: number) {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass-card-dark p-3 text-xs space-y-1.5 min-w-[160px]">
-      <p className="text-slate-300 font-semibold mb-2">{formatDate(label)}</p>
+    <div className="rounded-lg border border-border bg-card p-3 text-xs space-y-1.5 shadow-md">
+      <p className="text-foreground font-semibold mb-2">{formatDate(label)}</p>
       {payload.map((entry: any) => (
         <div key={entry.dataKey} className="flex justify-between gap-4">
           <span style={{ color: entry.color }}>{entry.name}</span>
-          <span className="text-white font-medium">{formatINR(entry.value)}</span>
+          <span className="text-foreground font-medium">{formatINR(entry.value)}</span>
         </div>
       ))}
     </div>
@@ -43,90 +44,84 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function FareChart({ data, thirtyDayAvg }: FareChartProps) {
   return (
-    <div className="glass-card p-5 space-y-4 animate-slide-up">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="rounded-xl border border-border bg-card p-5 space-y-4 shadow-sm">
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-border">
         <div>
-          <h3 className="text-white font-semibold text-sm">30-Day Fare Trend</h3>
-          <p className="text-slate-500 text-xs mt-0.5">Historical daily fare observations</p>
+          <h3 className="text-foreground font-semibold text-sm">30-Day Fare Index Trend</h3>
+          <p className="text-muted-foreground text-xs">Historical daily observation points</p>
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-600/50 border border-surface-400/20">
-          <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-          <span className="text-slate-400 text-xs">Avg {formatINR(thirtyDayAvg)}</span>
+        <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-md border border-border">
+          Baseline 30D Avg: <span className="font-medium text-foreground">{formatINR(thirtyDayAvg)}</span>
         </div>
       </div>
 
-      <div className="h-64 md:h-80">
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <defs>
               <linearGradient id="avgGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22a265" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#22a265" stopOpacity={0} />
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="maxGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f87171" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.15} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="minGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#34d399" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#30363d" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
-              tick={{ fill: '#6b7280', fontSize: 11 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               tickFormatter={(v) => `₹${(v / 1000).toFixed(1)}k`}
-              tick={{ fill: '#6b7280', fontSize: 11 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              width={55}
+              width={50}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend
-              wrapperStyle={{ fontSize: '12px', color: '#9ca3af', paddingTop: '12px' }}
-            />
+            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }} />
             <ReferenceLine
               y={thirtyDayAvg}
-              stroke="#6b7280"
+              stroke="hsl(var(--muted-foreground))"
               strokeDasharray="4 4"
-              label={{ value: '30D Avg', fill: '#6b7280', fontSize: 10, position: 'insideTopRight' }}
+              label={{ value: '30D Baseline', fill: 'hsl(var(--muted-foreground))', fontSize: 10, position: 'insideTopRight' }}
             />
             <Area
               type="monotone"
               dataKey="maximumFare"
               name="Max Fare"
-              stroke="#f87171"
+              stroke="#ef4444"
               strokeWidth={1.5}
               fill="url(#maxGrad)"
               dot={false}
-              activeDot={{ r: 4, fill: '#f87171' }}
             />
             <Area
               type="monotone"
               dataKey="averageFare"
               name="Avg Fare"
-              stroke="#22a265"
-              strokeWidth={2.5}
+              stroke="#10b981"
+              strokeWidth={2}
               fill="url(#avgGrad)"
               dot={false}
-              activeDot={{ r: 5, fill: '#22a265' }}
             />
             <Area
               type="monotone"
               dataKey="minimumFare"
               name="Min Fare"
-              stroke="#34d399"
+              stroke="#3b82f6"
               strokeWidth={1.5}
               fill="url(#minGrad)"
               dot={false}
-              activeDot={{ r: 4, fill: '#34d399' }}
             />
           </AreaChart>
         </ResponsiveContainer>

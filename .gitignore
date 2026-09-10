@@ -1,14 +1,18 @@
 # Dependencies
 node_modules/
+.next/
+**/.next/
 
 # Build outputs
 dist/
 build/
+out/
 
 # Environment files — NEVER commit secrets
 .env
 .env.local
 .env.production
+.env*.local
 
 # Logs
 *.log
