@@ -48,7 +48,7 @@ export class FareService {
     }
 
     const analytics = computeAnalytics(todayObs, sevenDayObs, thirtyDayObs);
-    const historicalData = aggregateByDay(thirtyDayObs);
+    const historicalData = aggregateByDay(thirtyDayObs, analytics.thirtyDayAverage);
     const trend = determineTrend(historicalData);
 
     // Current fare: latest available, or today's average, or 30-day average

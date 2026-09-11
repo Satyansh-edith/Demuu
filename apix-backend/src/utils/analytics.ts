@@ -30,7 +30,7 @@ export function stdDev(values: number[]): number {
   return Math.sqrt(mean(values.map((v) => Math.pow(v - avg, 2))));
 }
 
-export function aggregateByDay(observations: FareObservationDocument[]): DailyFareData[] {
+export function aggregateByDay(observations: FareObservationDocument[], baseFare: number): DailyFareData[] {
   const dayMap: Record<string, number[]> = {};
   for (const obs of observations) {
     const date = new Date(obs.scrapedAt).toISOString().split('T')[0];
@@ -45,6 +45,7 @@ export function aggregateByDay(observations: FareObservationDocument[]): DailyFa
       averageFare: mean(fares),
       minimumFare: Math.min(...fares),
       maximumFare: Math.max(...fares),
+      apixIndex: baseFare > 0 ? Math.round((mean(fares) / baseFare) * 100) : 100,
     }));
 }
 
@@ -101,5 +102,8 @@ export function computeAnalytics(
     maximumFare: thf.length ? Math.max(...thf) : 0,
     changeVs7Days: percentageChange(todayAverage, sevenDayAverage),
     changeVs30Days: percentageChange(todayAverage, thirtyDayAverage),
+    currentApixIndex: thirtyDayAverage > 0 ? Math.round((todayAverage / thirtyDayAverage) * 100) : 100,
+    sevenDayApixIndex: thirtyDayAverage > 0 ? Math.round((sevenDayAverage / thirtyDayAverage) * 100) : 100,
+    thirtyDayApixIndex: 100,
   };
 }

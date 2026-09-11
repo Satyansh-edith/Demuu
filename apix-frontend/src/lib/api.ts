@@ -21,6 +21,7 @@ export interface DailyFareData {
   averageFare: number;
   minimumFare: number;
   maximumFare: number;
+  apixIndex: number;
 }
 
 export interface FareAnalytics {
@@ -31,6 +32,9 @@ export interface FareAnalytics {
   maximumFare: number;
   changeVs7Days: number;
   changeVs30Days: number;
+  currentApixIndex: number;
+  sevenDayApixIndex: number;
+  thirtyDayApixIndex: number;
 }
 
 export interface FareTrend {
